@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, ChangeEvent } from "react";
+import { useEffect, useState, ChangeEvent, FormEvent } from "react";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/lib/auth-context";
@@ -56,6 +56,34 @@ export default function ProfilePage() {
   const [phone, setPhone] = useState("");
   const [reorderStatus, setReorderStatus] = useState<Record<string, string>>({});
   const [avatarError, setAvatarError] = useState("");
+  const [addresses, setAddresses] = useState([
+  {
+    id: "1",
+    fullName: user?.fullName || "Guest User",
+    addressLine1: "42 Green Valley Apartments",
+    addressLine2: "MG Road, Phase 1",
+    city: "Bangalore",
+    state: "Karnataka",
+    pincode: "560001",
+    country: "India",
+    phone: user?.phone || "",
+    isDefault: true,
+  },
+]);
+
+const [showAddressForm, setShowAddressForm] = useState(false);
+const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
+
+const [addressForm, setAddressForm] = useState({
+  fullName: "",
+  addressLine1: "",
+  addressLine2: "",
+  city: "",
+  state: "",
+  pincode: "",
+  country: "India",
+  phone: "",
+});
 
   useEffect(() => {
     if (hydrated && !isLoggedIn) {
@@ -87,6 +115,117 @@ export default function ProfilePage() {
     setPhone(user?.phone || "");
     setIsEditing(false);
   };
+    const handleAddressChange = (
+    e: ChangeEvent<HTMLInputElement>
+  ) => {
+    const { name, value } = e.target;
+
+    setAddressForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleAddAddress = () => {
+    setEditingAddressId(null);
+
+    setAddressForm({
+      fullName: user?.fullName || "",
+      addressLine1: "",
+      addressLine2: "",
+      city: "",
+      state: "",
+      pincode: "",
+      country: "India",
+      phone: user?.phone || "",
+    });
+
+    setShowAddressForm(true);
+  };
+
+  const handleEditAddress = (address: typeof addresses[number]) => {
+    setEditingAddressId(address.id);
+
+    setAddressForm({
+      fullName: address.fullName,
+      addressLine1: address.addressLine1,
+      addressLine2: address.addressLine2,
+      city: address.city,
+      state: address.state,
+      pincode: address.pincode,
+      country: address.country,
+      phone: address.phone,
+    });
+
+    setShowAddressForm(true);
+  };
+
+  const handleSaveAddress = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (
+      !addressForm.fullName ||
+      !addressForm.addressLine1 ||
+      !addressForm.city ||
+      !addressForm.state ||
+      !addressForm.pincode ||
+      !addressForm.phone
+    ) {
+      return;
+    }
+
+    if (editingAddressId) {
+      setAddresses((prev) =>
+        prev.map((address) =>
+          address.id === editingAddressId
+            ? {
+                ...address,
+                ...addressForm,
+              }
+            : address
+        )
+      );
+    } else {
+      setAddresses((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          ...addressForm,
+          isDefault: prev.length === 0,
+        },
+      ]);
+    }
+
+    setShowAddressForm(false);
+    setEditingAddressId(null);
+  };
+
+  const handleRemoveAddress = (id: string) => {
+    setAddresses((prev) => {
+      const updated = prev.filter((address) => address.id !== id);
+
+      if (
+        updated.length > 0 &&
+        !updated.some((address) => address.isDefault)
+      ) {
+        updated[0] = {
+          ...updated[0],
+          isDefault: true,
+        };
+      }
+
+      return updated;
+    });
+  };
+
+  const handleSetDefaultAddress = (id: string) => {
+    setAddresses((prev) =>
+      prev.map((address) => ({
+        ...address,
+        isDefault: address.id === id,
+      }))
+    );
+  };
 
   const handleAvatarUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -101,6 +240,9 @@ export default function ProfilePage() {
       setAvatarError("Image must be under 5MB.");
       return;
     }
+
+
+    
 
     const reader = new FileReader();
     reader.onload = () => {
@@ -331,6 +473,104 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
+                                <div className="rounded-xl border border-gray-200 p-6">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-bold text-gray-900">
+                      Default Address
+                    </h2>
+
+                    <button
+                      type="button"
+                      onClick={() => setActive("address")}
+                      className="text-sm font-medium text-brand-green hover:underline"
+                    >
+                      Manage Addresses
+                    </button>
+                  </div>
+
+                  {addresses.length > 0 ? (
+                    <div className="mt-4 rounded-md border border-gray-200 p-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">
+                            {addresses.find(
+                              (address) => address.isDefault
+                            )?.fullName ||
+                              addresses[0].fullName}
+                          </p>
+
+                          <p className="mt-1 text-sm leading-5 text-gray-600">
+                            {addresses.find(
+                              (address) => address.isDefault
+                            )?.addressLine1 ||
+                              addresses[0].addressLine1}
+                            <br />
+
+                            {(addresses.find(
+                              (address) => address.isDefault
+                            )?.addressLine2 ||
+                              addresses[0].addressLine2) && (
+                              <>
+                                {addresses.find(
+                                  (address) => address.isDefault
+                                )?.addressLine2 ||
+                                  addresses[0].addressLine2}
+                                <br />
+                              </>
+                            )}
+
+                            {addresses.find(
+                              (address) => address.isDefault
+                            )?.city ||
+                              addresses[0].city}
+                            ,{" "}
+                            {addresses.find(
+                              (address) => address.isDefault
+                            )?.state ||
+                              addresses[0].state}{" "}
+                            {addresses.find(
+                              (address) => address.isDefault
+                            )?.pincode ||
+                              addresses[0].pincode}
+                            <br />
+
+                            {addresses.find(
+                              (address) => address.isDefault
+                            )?.country ||
+                              addresses[0].country}
+                          </p>
+
+                          <p className="mt-2 text-sm font-medium text-gray-800">
+                            Mobile:{" "}
+                            {addresses.find(
+                              (address) => address.isDefault
+                            )?.phone ||
+                              addresses[0].phone}
+                          </p>
+                        </div>
+
+                        <span className="rounded-md bg-brand-green px-2 py-1 text-[10px] font-bold text-white">
+                          DEFAULT
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mt-4 rounded-md border border-dashed border-gray-300 p-5 text-center">
+                      <p className="text-sm text-gray-500">
+                        No default address added.
+                      </p>
+
+                      <button
+                        type="button"
+                        onClick={() => setActive("address")}
+                        className="mt-2 text-sm font-medium text-brand-green hover:underline"
+                      >
+                        Add Address
+                      </button>
+                    </div>
+                  )}
+                </div>
+
                 <div className="rounded-xl border border-gray-200 p-6">
                   <h2 className="text-lg font-bold text-gray-900">Recent Orders</h2>
                   <div className="mt-4 space-y-4">
@@ -357,40 +597,163 @@ export default function ProfilePage() {
               </>
             )}
 
-            {active === "address" && (
-              <div className="rounded-xl border border-gray-200 p-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-bold text-gray-900">Address Book</h2>
-                  <button className="text-sm font-medium text-brand-green hover:underline">
-                    + Add New Address
-                  </button>
-                </div>
-                <div className="mt-4 rounded-lg border border-gray-100 p-4">
-                  <div className="flex items-start justify-between">
-                    <p className="font-semibold text-gray-900">{user?.fullName || "Guest User"}</p>
-                    <span className="rounded bg-brand-green px-2 py-0.5 text-[10px] font-bold text-white">
-                      DEFAULT
-                    </span>
-                  </div>
-                  <p className="mt-1 text-sm text-gray-600">
-                    42 Green Valley Apartments,
-                    <br />
-                    MG Road, Phase 1,
-                    <br />
-                    Bangalore, Karnataka 560001
-                    <br />
-                    India
-                  </p>
-                  <p className="mt-2 text-sm font-medium text-gray-800">
-                    Mobile: {user?.phone || "Not provided"}
-                  </p>
-                  <div className="mt-3 flex gap-3 text-sm">
-                    <button className="font-medium text-brand-green hover:underline">Edit</button>
-                    <button className="font-medium text-red-500 hover:underline">Remove</button>
-                  </div>
-                </div>
-              </div>
+           {active === "address" && (
+  <div className="rounded-xl border border-gray-200 p-6">
+    <div className="flex items-center justify-between">
+      <h2 className="text-lg font-bold text-gray-900">
+        Address Book
+      </h2>
+
+      <button
+        type="button"
+        onClick={handleAddAddress}
+        className="rounded-lg bg-brand-green px-4 py-2 text-sm font-semibold text-white hover:bg-brand-green-dark"
+      >
+        + Add New Address
+      </button>
+    </div>
+
+    {showAddressForm && (
+      <form
+        onSubmit={handleSaveAddress}
+        className="mt-6 rounded-xl border border-gray-200 bg-white p-5"
+      >
+        <h3 className="text-base font-bold text-gray-900">
+          {editingAddressId ? "Edit Address" : "Add New Address"}
+        </h3>
+
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {[
+            ["fullName", "Full Name"],
+            ["addressLine1", "Address Line 1"],
+            ["addressLine2", "Address Line 2"],
+            ["city", "City"],
+            ["state", "State"],
+            ["pincode", "Pincode"],
+            ["phone", "Phone Number"],
+          ].map(([name, label]) => (
+            <div key={name}>
+              <label className="text-xs font-medium text-gray-600">
+                {label}
+              </label>
+
+              <input
+                name={name}
+                value={addressForm[name as keyof typeof addressForm]}
+                onChange={handleAddressChange}
+                className="mt-1 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-brand-green"
+                required={name !== "addressLine2"}
+              />
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-4">
+          <label className="text-xs font-medium text-gray-600">
+            Country
+          </label>
+
+          <input
+            name="country"
+            value={addressForm.country}
+            onChange={handleAddressChange}
+            className="mt-1 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-brand-green"
+          />
+        </div>
+
+        <div className="mt-5 flex gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              setShowAddressForm(false);
+              setEditingAddressId(null);
+            }}
+            className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            className="rounded-lg bg-brand-green px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-green-dark"
+          >
+            {editingAddressId ? "Update Address" : "Save Address"}
+          </button>
+        </div>
+      </form>
+    )}
+
+    <div className="mt-5 space-y-4">
+      {addresses.map((address) => (
+        <div
+          key={address.id}
+          className="rounded-xl border border-gray-100 p-4"
+        >
+          <div className="flex items-start justify-between gap-4">
+            <p className="font-semibold text-gray-900">
+              {address.fullName}
+            </p>
+
+            {address.isDefault && (
+             <span className="rounded-md bg-brand-green px-2 py-0.5 text-[10px] font-bold text-white">
+  DEFAULT
+</span>
             )}
+          </div>
+
+          <p className="mt-2 text-sm leading-6 text-gray-600">
+            {address.addressLine1}
+            <br />
+
+            {address.addressLine2 && (
+              <>
+                {address.addressLine2}
+                <br />
+              </>
+            )}
+
+            {address.city}, {address.state} {address.pincode}
+            <br />
+
+            {address.country}
+          </p>
+
+          <p className="mt-2 text-sm font-medium text-gray-800">
+            Mobile: {address.phone}
+          </p>
+
+          <div className="mt-4 flex flex-wrap gap-4 text-sm">
+            <button
+              type="button"
+              onClick={() => handleEditAddress(address)}
+              className="font-medium text-brand-green hover:underline"
+            >
+              Edit
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleRemoveAddress(address.id)}
+              className="font-medium text-red-500 hover:underline"
+            >
+              Remove
+            </button>
+
+            {!address.isDefault && (
+              <button
+                type="button"
+                onClick={() => handleSetDefaultAddress(address.id)}
+                className="font-medium text-gray-700 hover:underline"
+              >
+                Set as Default
+              </button>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
 
             {active === "orders" && (
               <div className="rounded-xl border border-gray-200 p-6">
