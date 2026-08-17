@@ -20,25 +20,114 @@ export default function RegisterPage() {
   const { register } = useAuth();
 
   const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    setError("");
+  e.preventDefault();
+  setError("");
 
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-    if (!agreed) {
-      setError("Please agree to the Terms & Conditions and Privacy Policy.");
-      return;
-    }
+  // Full Name validation
+  const trimmedName = fullName.trim();
 
-    register({ fullName, email, phone });
-    router.push("/profile");
-  };
+  if (!trimmedName) {
+    setError("Please enter your full name.");
+    return;
+  }
+
+  if (trimmedName.length < 3) {
+    setError("Full name must be at least 3 characters.");
+    return;
+  }
+
+  if (!/^[A-Za-z\s]+$/.test(trimmedName)) {
+    setError("Full name can contain only letters and spaces.");
+    return;
+  }
+
+  // Email validation
+  const trimmedEmail = email.trim();
+
+  if (!trimmedEmail) {
+    setError("Please enter your email address.");
+    return;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!emailRegex.test(trimmedEmail)) {
+    setError("Please enter a valid email address.");
+    return;
+  }
+
+  // Phone validation
+  const trimmedPhone = phone.trim();
+
+  if (!trimmedPhone) {
+    setError("Please enter your phone number.");
+    return;
+  }
+
+  const phoneRegex = /^[6-9]\d{9}$/;
+
+  // Remove spaces, +91 and other formatting
+  const cleanPhone = trimmedPhone
+    .replace(/\s+/g, "")
+    .replace(/^(\+91|91)/, "");
+
+  if (!phoneRegex.test(cleanPhone)) {
+    setError("Please enter a valid 10-digit Indian phone number.");
+    return;
+  }
+
+  // Password validation
+  if (!password) {
+    setError("Please enter a password.");
+    return;
+  }
+
+  if (password.length < 6) {
+    setError("Password must be at least 6 characters.");
+    return;
+  }
+
+  if (!/[A-Z]/.test(password)) {
+    setError("Password must contain at least one uppercase letter.");
+    return;
+  }
+
+  if (!/[a-z]/.test(password)) {
+    setError("Password must contain at least one lowercase letter.");
+    return;
+  }
+
+  if (!/[0-9]/.test(password)) {
+    setError("Password must contain at least one number.");
+    return;
+  }
+
+  // Confirm Password validation
+  if (!confirmPassword) {
+    setError("Please confirm your password.");
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    setError("Passwords do not match.");
+    return;
+  }
+
+  // Terms & Conditions validation
+  if (!agreed) {
+    setError("Please agree to the Terms & Conditions and Privacy Policy.");
+    return;
+  }
+
+  // Register user
+  register({
+    fullName: trimmedName,
+    email: trimmedEmail,
+    phone: cleanPhone,
+  });
+
+  router.push("/profile");
+};
 
   return (
     <main className="flex min-h-screen flex-col bg-gray-50">

@@ -17,24 +17,47 @@ export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    setError("");
+ const handleSubmit = (e: FormEvent) => {
+  e.preventDefault();
+  setError("");
 
-    if (!password) {
-      setError("Please enter your password.");
-      return;
-    }
+  // Email validation
+  const trimmedEmail = email.trim();
 
-    const result = login(email);
-    if (!result.success) {
-      setError(result.message ?? "Login failed. Please try again.");
-      return;
-    }
+  if (!trimmedEmail) {
+    setError("Please enter your email address.");
+    return;
+  }
 
-    router.push("/profile");
-  };
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+  if (!emailRegex.test(trimmedEmail)) {
+    setError("Please enter a valid email address.");
+    return;
+  }
+
+  // Password validation
+  if (!password) {
+    setError("Please enter your password.");
+    return;
+  }
+
+  if (password.length < 6) {
+    setError("Password must be at least 6 characters.");
+    return;
+  }
+
+  // Login
+  const result = login(trimmedEmail);
+
+  if (!result.success) {
+    setError(result.message ?? "Invalid email or password. Please try again.");
+    return;
+  }
+
+  // Login successful
+  router.push("/profile");
+};
   return (
     <main className="flex min-h-screen flex-col bg-gray-50">
       <AuthHeader />

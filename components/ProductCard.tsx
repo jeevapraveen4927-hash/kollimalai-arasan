@@ -4,9 +4,11 @@ import Image from "next/image";
 import { useState } from "react";
 import { Product } from "@/lib/types";
 import { useCart } from "@/lib/cart-context";
+import { useWishlist } from "@/lib/wishlist-context";
 
 export default function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart();
+  const { isWishlisted, toggleItem } = useWishlist();
   const [added, setAdded] = useState(false);
 
   const handleAdd = () => {
@@ -33,15 +35,39 @@ export default function ProductCard({ product }: { product: Product }) {
           sizes="(max-width: 640px) 45vw, 280px"
           className="object-contain p-6"
         />
-        <button
-          aria-label="Quick view"
-          className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white text-gray-600 shadow"
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M6 2v14a2 2 0 0 0 2 2h14" />
-            <path d="M18 22V8a2 2 0 0 0-2-2H2" />
-          </svg>
-        </button>
+      <button
+  type="button"
+  aria-label={
+    isWishlisted(product.id)
+      ? `Remove ${product.name} from wishlist`
+      : `Add ${product.name} to wishlist`
+  }
+  onClick={() =>
+    toggleItem({
+      id: product.id,
+      name: product.name,
+      image: product.image,
+      price: product.price,
+      weightLabel: product.weightLabel,
+    })
+  }
+  className={`absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow transition ${
+    isWishlisted(product.id)
+      ? "text-red-500"
+      : "text-gray-500 hover:text-red-500"
+  }`}
+>
+  <svg
+    width="17"
+    height="17"
+    viewBox="0 0 24 24"
+    fill={isWishlisted(product.id) ? "currentColor" : "none"}
+    stroke="currentColor"
+    strokeWidth="2"
+  >
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+  </svg>
+</button>
       </div>
 
       <div className="mt-3 flex flex-1 flex-col">

@@ -1,4 +1,5 @@
 import { Product, ProductTag } from "./types";
+import { useWishlist } from "@/lib/wishlist-context";
 
 /**
  * SINGLE SOURCE OF TRUTH for all products.
