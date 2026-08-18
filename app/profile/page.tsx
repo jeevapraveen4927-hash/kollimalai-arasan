@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, ChangeEvent, FormEvent } from "react";
-import DashboardHeader from "@/components/DashboardHeader";
+import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
@@ -309,7 +309,7 @@ const [addressForm, setAddressForm] = useState({
   if (!hydrated || !isLoggedIn) {
     return (
       <main>
-        <DashboardHeader />
+        <Header />
         <div className="flex min-h-[50vh] items-center justify-center text-sm text-gray-400">
           Loading your profile…
         </div>
@@ -320,7 +320,7 @@ const [addressForm, setAddressForm] = useState({
 
   return (
     <main>
-      <DashboardHeader />
+      <Header />
 
       <section className="mx-auto max-w-[1200px] px-4 py-8 sm:py-10">
         <div className="flex items-center justify-between">

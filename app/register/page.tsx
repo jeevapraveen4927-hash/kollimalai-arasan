@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
-import AuthHeader from "@/components/AuthHeader";
+import Header from "@/components/Header";
 import FormField from "@/components/FormField";
 import { useAuth } from "@/lib/auth-context";
 
@@ -131,7 +131,7 @@ export default function RegisterPage() {
 
   return (
     <main className="flex min-h-screen flex-col bg-gray-50">
-      <AuthHeader />
+      <Header />
 
       <div className="flex flex-1 items-center justify-center px-4 py-10">
         <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white p-6 shadow-card sm:p-8">

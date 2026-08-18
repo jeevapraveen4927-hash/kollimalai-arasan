@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
-import AuthHeader from "@/components/AuthHeader";
+import Header from "@/components/Header";
 import FormField from "@/components/FormField";
 
 export default function ForgotPasswordPage() {
@@ -16,7 +16,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <main className="flex min-h-screen flex-col bg-gray-50">
-      <AuthHeader />
+      <Header />
 
       <div className="flex flex-1 items-center justify-center px-4 py-10">
         <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-card sm:p-8">

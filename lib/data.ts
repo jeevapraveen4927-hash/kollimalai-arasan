@@ -75,6 +75,26 @@ export const testimonials: Testimonial[] = [
   },
 ];
 
+// Home page hero banner slider — same photographic treatment as the
+// original single hero-banner.jpg, just multiple slides.
+export const heroSlides = [
+  {
+    id: "slide-1",
+    image: "/images/hero-banner.jpg",
+    alt: "Assortment of pure spices and millets arranged like a world map",
+  },
+  {
+    id: "slide-2",
+    image: "/images/hero-banner-2.jpg",
+    alt: "Cumin, coriander, fennel and pepper spice piles",
+  },
+  {
+    id: "slide-3",
+    image: "/images/hero-banner-3.jpg",
+    alt: "Turmeric, chilli and pepper spice piles",
+  },
+];
+
 // "Why Choose Us" — sustainability/quality claims (5 items, icons rendered in WhyChooseUs.tsx)
 export const whyChooseUs = [
   { label: "Sustainable Farming Techniques", icon: "leaf-hand" },
