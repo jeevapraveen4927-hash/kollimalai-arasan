@@ -85,12 +85,12 @@ export const heroSlides = [
   },
   {
     id: "slide-2",
-    image: "/images/hero-banner-2.jpg",
+    image: "/images/hero banner 1.jpg",
     alt: "Cumin, coriander, fennel and pepper spice piles",
   },
   {
     id: "slide-3",
-    image: "/images/hero-banner-3.jpg",
+    image: "/images/hero banner 2.jpg",
     alt: "Turmeric, chilli and pepper spice piles",
   },
 ];

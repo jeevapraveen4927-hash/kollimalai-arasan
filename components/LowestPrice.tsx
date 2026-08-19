@@ -2,31 +2,63 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { getProductsByTag } from "@/lib/products";
 import { Product } from "@/lib/types";
+import { fetchProductsByTag } from "@/lib/api";
 import { useCart } from "@/lib/cart-context";
 
 export default function LowestPrice() {
-  const products = getProductsByTag("lowest-price");
+  const [products, setProducts] = useState<Product[]>([]);
+
   const scrollerRef = useRef<HTMLDivElement>(null);
+
   const { addItem } = useCart();
+
   const [addedId, setAddedId] = useState<string | null>(null);
+
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
+  useEffect(() => {
+    async function loadProducts() {
+      try {
+        const data = await fetchProductsByTag("lowest-price");
+        setProducts(data);
+      } catch (error) {
+        console.error(
+          "Failed to load lowest price products:",
+          error
+        );
+      }
+    }
+
+    loadProducts();
+  }, []);
+
   const updateScrollState = () => {
     const el = scrollerRef.current;
+
     if (!el) return;
+
     setCanScrollLeft(el.scrollLeft > 4);
-    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+
+    setCanScrollRight(
+      el.scrollLeft + el.clientWidth < el.scrollWidth - 4
+    );
   };
 
   useEffect(() => {
     updateScrollState();
+
     const el = scrollerRef.current;
+
     if (!el) return;
-    el.addEventListener("scroll", updateScrollState, { passive: true });
+
+    el.addEventListener("scroll", updateScrollState, {
+      passive: true,
+    });
+
     window.addEventListener("resize", updateScrollState);
+
     return () => {
       el.removeEventListener("scroll", updateScrollState);
       window.removeEventListener("resize", updateScrollState);
@@ -49,7 +81,9 @@ export default function LowestPrice() {
       image: product.image,
       price: product.price,
     });
+
     setAddedId(product.id);
+
     setTimeout(() => setAddedId(null), 1500);
   };
 
@@ -61,6 +95,7 @@ export default function LowestPrice() {
         <h2 className="text-2xl font-bold uppercase tracking-tight text-gray-900 sm:text-[32px]">
           Lowest Price Ever
         </h2>
+
         <div className="flex items-center gap-2">
           <button
             aria-label="Scroll left"
@@ -68,17 +103,32 @@ export default function LowestPrice() {
             disabled={!canScrollLeft}
             className="flex h-9 w-9 items-center justify-center rounded-full bg-accent-orange-badge text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+            >
               <polyline points="15 18 9 12 15 6" />
             </svg>
           </button>
+
           <button
             aria-label="Scroll right"
             onClick={() => scroll("right")}
             disabled={!canScrollRight}
             className="flex h-9 w-9 items-center justify-center rounded-full bg-accent-orange-badge text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+            >
               <polyline points="9 18 15 12 9 6" />
             </svg>
           </button>
@@ -90,12 +140,16 @@ export default function LowestPrice() {
         className="no-scrollbar grid grid-flow-col auto-cols-[70%] gap-4 overflow-x-auto scroll-smooth sm:auto-cols-[45%] md:auto-cols-[23%]"
       >
         {products.map((product) => (
-          <div key={product.id} className="relative overflow-hidden rounded-lg border border-gray-200">
+          <div
+            key={product.id}
+            className="relative overflow-hidden rounded-lg border border-gray-200"
+          >
             {product.discountLabel && (
               <span className="absolute left-0 top-3 z-10 rounded-r-full bg-accent-orange-badge px-3 py-1 text-xs font-semibold text-white">
                 {product.discountLabel}
               </span>
             )}
+
             <div className="relative aspect-[4/5] w-full bg-white px-4 pb-4 pt-10">
               <Image
                 src={product.image}
@@ -105,21 +159,32 @@ export default function LowestPrice() {
                 className="object-contain"
               />
             </div>
+
             <div className="px-3 pb-4 sm:px-4">
-              <h3 className="truncate text-sm text-gray-900 sm:text-base">{product.name}</h3>
+              <h3 className="truncate text-sm text-gray-900 sm:text-base">
+                {product.name}
+              </h3>
+
               <p className="mt-1 text-xs sm:text-sm">
                 {product.originalPrice && (
                   <span className="text-gray-400 line-through">
                     ₹{product.originalPrice.toFixed(2)}
                   </span>
-                )}{" "}
+                )}
+
+                {" "}
+
                 <span className="text-gray-700">from </span>
+
                 <span className="font-bold text-brand-green">
                   ₹{product.price.toFixed(2)}
                 </span>
               </p>
+
               {product.taxIncluded && (
-                <p className="text-[11px] text-gray-400 sm:text-xs">(Tax included)</p>
+                <p className="text-[11px] text-gray-400 sm:text-xs">
+                  (Tax included)
+                </p>
               )}
 
               {product.packOption && (
@@ -128,8 +193,11 @@ export default function LowestPrice() {
                     className="w-full appearance-none truncate rounded-md bg-cream px-3 py-2 text-xs text-gray-700 focus:outline-none sm:text-sm"
                     defaultValue={product.packOption}
                   >
-                    <option value={product.packOption}>{product.packOption}</option>
+                    <option value={product.packOption}>
+                      {product.packOption}
+                    </option>
                   </select>
+
                   <svg
                     width="14"
                     height="14"

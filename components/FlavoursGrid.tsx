@@ -1,11 +1,16 @@
 import Link from "next/link";
 import { getProductsByTag } from "@/lib/products";
 import ProductCard from "./ProductCard";
+import { fetchProductsByTag } from "@/lib/api";
 
-export default function FlavoursGrid() {
-  const flavourProducts = getProductsByTag("freshly-launched");
+
+export default async function FlavoursGrid() {
+  const flavourProducts =
+    await fetchProductsByTag("freshly-launched");
 
   return (
+    
+
     <section className="mx-auto max-w-[1200px] px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
         <h2 className="text-2xl font-bold uppercase tracking-tight text-gray-900 sm:text-[32px]">
