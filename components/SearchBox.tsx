@@ -4,7 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { searchProducts } from "@/lib/search";
+import { searchProductsAPI } from "@/lib/api";
+import { Product } from "@/lib/types";
 
 export default function SearchBox({
   autoFocus = false,
@@ -17,8 +18,26 @@ export default function SearchBox({
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
+  const [results, setResults] = useState<Product[]>([]);
 
-  const results = query.trim() ? searchProducts(query).slice(0, 6) : [];
+  useEffect(() => {
+  async function loadResults() {
+    if (!query.trim()) {
+      setResults([]);
+      return;
+    }
+
+    try {
+      const data = await searchProductsAPI(query);
+      setResults(data.slice(0, 6));
+    } catch (error) {
+      console.error("Search failed:", error);
+      setResults([]);
+    }
+  }
+
+  loadResults();
+}, [query]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {

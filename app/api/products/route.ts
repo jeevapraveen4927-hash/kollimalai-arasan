@@ -12,6 +12,26 @@ export async function GET(request: Request) {
   const id = searchParams.get("id");
   const category = searchParams.get("category");
   const tag = searchParams.get("tag");
+  const search = searchParams.get("search");
+
+  if (search) {
+  const query = search.trim().toLowerCase();
+
+  const results = getAllProducts().filter((product) => {
+    const haystack = [
+      product.name,
+      product.category,
+      product.sku,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    return haystack.includes(query);
+  });
+
+  return NextResponse.json(results);
+}
 
   if (id) {
     const product = getProductById(id);

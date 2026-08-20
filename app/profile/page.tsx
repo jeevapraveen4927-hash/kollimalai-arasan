@@ -9,7 +9,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
 import { mockOrders, getOrderTotal, resolveOrderItems } from "@/lib/orders";
 import { Order } from "@/lib/types";
-
+import { fetchProfile } from "@/lib/api";
 const menuItems = [
   { key: "personal", label: "Personal Info", icon: "user" },
   { key: "address", label: "Address Book", icon: "pin" },
@@ -98,6 +98,26 @@ const [addressForm, setAddressForm] = useState({
     setPhone(user?.phone || "");
   }, [user]);
 
+  useEffect(() => {
+  const loadProfile = async () => {
+    try {
+      const result = await fetchProfile();
+
+      if (!result.success) {
+        console.error(result.message);
+        return;
+      }
+
+      console.log("Profile API data:", result.user);
+    } catch (error) {
+      console.error("Profile API error:", error);
+    }
+  };
+
+  loadProfile();
+}, []);
+  
+
   const handleLogout = () => {
     logout();
     router.push("/login");
@@ -105,7 +125,6 @@ const [addressForm, setAddressForm] = useState({
 
   const handleSave = () => {
     updateUser({ fullName: `${firstName} ${lastName}`.trim(), phone });
-    setIsEditing(false);
   };
 
   const handleCancel = () => {

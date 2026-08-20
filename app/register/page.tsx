@@ -6,6 +6,7 @@ import { FormEvent, useState } from "react";
 import Header from "@/components/Header";
 import FormField from "@/components/FormField";
 import { useAuth } from "@/lib/auth-context";
+import { registerUser } from "@/lib/api";
 
 export default function RegisterPage() {
   const [fullName, setFullName] = useState("");
@@ -19,7 +20,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const { register } = useAuth();
 
-  const handleSubmit = (e: FormEvent) => {
+const handleSubmit = async (e: FormEvent) => {
   e.preventDefault();
   setError("");
 
@@ -49,8 +50,7 @@ export default function RegisterPage() {
     return;
   }
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(trimmedEmail)) {
     setError("Please enter a valid email address.");
     return;
@@ -120,6 +120,21 @@ export default function RegisterPage() {
   }
 
   // Register user
+// Register user through API
+try {
+  const result = await registerUser(
+    trimmedName,
+    trimmedEmail,
+    cleanPhone,
+    password
+  );
+
+  if (!result.success) {
+    setError(result.message || "Registration failed.");
+    return;
+  }
+
+  // Update local auth state
   register({
     fullName: trimmedName,
     email: trimmedEmail,
@@ -127,7 +142,11 @@ export default function RegisterPage() {
   });
 
   router.push("/profile");
-};
+} catch (error) {
+  console.error("Registration error:", error);
+  setError("Unable to connect to the registration API.");
+}
+}
 
   return (
     <main className="flex min-h-screen flex-col bg-gray-50">

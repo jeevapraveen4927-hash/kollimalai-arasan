@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import Header from "@/components/Header";
 import FormField from "@/components/FormField";
-import { useAuth } from "@/lib/auth-context";
+import { loginUser } from "@/lib/api";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -15,9 +15,9 @@ export default function LoginPage() {
   const [error, setError] = useState("");
 
   const router = useRouter();
-  const { login } = useAuth();
+  
 
- const handleSubmit = (e: FormEvent) => {
+ const handleSubmit = async (e: FormEvent) => {
   e.preventDefault();
   setError("");
 
@@ -48,7 +48,7 @@ export default function LoginPage() {
   }
 
   // Login
-  const result = login(trimmedEmail);
+  const result = await loginUser(trimmedEmail, password);
 
   if (!result.success) {
     setError(result.message ?? "Invalid email or password. Please try again.");

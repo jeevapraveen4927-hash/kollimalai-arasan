@@ -4,15 +4,33 @@ import Link from "next/link";
 import { FormEvent, useState } from "react";
 import Header from "@/components/Header";
 import FormField from "@/components/FormField";
+import { forgotPassword } from "@/lib/api";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
+const handleSubmit = async (e: FormEvent) => {
+  e.preventDefault();
+
+  const trimmedEmail = email.trim();
+
+  if (!trimmedEmail) {
+    return;
+  }
+
+  try {
+    const result = await forgotPassword(trimmedEmail);
+
+    if (!result.success) {
+      return;
+    }
+
     setSent(true);
-  };
+  } catch (error) {
+    console.error("Forgot password error:", error);
+  }
+};
 
   return (
     <main className="flex min-h-screen flex-col bg-gray-50">
