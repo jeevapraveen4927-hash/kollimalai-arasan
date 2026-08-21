@@ -22,6 +22,7 @@ interface AuthContextValue {
   hydrated: boolean;
   register: (user: AuthUser) => void;
   login: (email: string) => { success: boolean; message?: string };
+  loginSuccess: (user: AuthUser) => void;
   logout: () => void;
   updateUser: (updates: Partial<AuthUser>) => void;
 }
@@ -85,6 +86,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const loginSuccess = useCallback((loggedInUser: AuthUser) => {
+  const cleanUser: AuthUser = {
+    fullName: loggedInUser.fullName?.trim() || "User",
+    email: loggedInUser.email.trim(),
+    phone: loggedInUser.phone?.trim(),
+  };
+
+  window.localStorage.setItem(
+    USER_KEY,
+    JSON.stringify(cleanUser)
+  );
+
+  window.localStorage.setItem(SESSION_KEY, "true");
+
+  setUser(cleanUser);
+  setIsLoggedIn(true);
+}, []);
+
   const logout = useCallback(() => {
     window.localStorage.setItem(SESSION_KEY, "false");
     setIsLoggedIn(false);
@@ -101,7 +120,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, isLoggedIn, hydrated, register, login, logout, updateUser }}
+    value={{
+  user,
+  isLoggedIn,
+  hydrated,
+  register,
+  login,
+  loginSuccess,
+  logout,
+  updateUser,
+}}
     >
       {children}
     </AuthContext.Provider>

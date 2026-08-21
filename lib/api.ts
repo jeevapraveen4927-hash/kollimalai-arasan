@@ -148,6 +148,26 @@ export async function forgotPassword(email: string) {
   return {
     success: response.ok,
     message: data.message,
+    otp: data.otp,
+  };
+}
+export async function verifyOtp(email: string, otp: string) {
+  const response = await fetch("/api/auth/verify", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email,
+      otp,
+    }),
+  });
+
+  const data = await response.json();
+
+  return {
+    success: response.ok,
+    message: data.message,
   };
 }
 export async function fetchProfile() {
@@ -186,5 +206,30 @@ export async function updateProfile(
     success: response.ok,
     message: data.message,
     user: data.user,
+  };
+}
+
+export async function resetPassword(
+  email: string,
+  newPassword: string,
+  confirmPassword: string
+) {
+  const response = await fetch("/api/auth/reset-password", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email,
+      newPassword,
+      confirmPassword,
+    }),
+  });
+
+  const data = await response.json();
+
+  return {
+    success: response.ok,
+    message: data.message,
   };
 }

@@ -9,7 +9,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
 import { mockOrders, getOrderTotal, resolveOrderItems } from "@/lib/orders";
 import { Order } from "@/lib/types";
-import { fetchProfile } from "@/lib/api";
+import { fetchProfile, updateProfile } from "@/lib/api";
 const menuItems = [
   { key: "personal", label: "Personal Info", icon: "user" },
   { key: "address", label: "Address Book", icon: "pin" },
@@ -123,10 +123,29 @@ const [addressForm, setAddressForm] = useState({
     router.push("/login");
   };
 
-  const handleSave = () => {
-    updateUser({ fullName: `${firstName} ${lastName}`.trim(), phone });
-  };
+const handleSave = async () => {
+  try {
+    const fullName = `${firstName} ${lastName}`.trim();
 
+    const result = await updateProfile(fullName, phone);
+
+    if (!result.success) {
+      console.error(result.message);
+      return;
+    }
+
+    updateUser({
+      fullName: result.user.fullName,
+      phone: result.user.phone,
+    });
+
+    setIsEditing(false);
+
+    console.log("Profile updated:", result.user);
+  } catch (error) {
+    console.error("Profile update error:", error);
+  }
+};
   const handleCancel = () => {
     const [f, ...rest] = (user?.fullName || "Guest User").split(" ");
     setFirstName(f);

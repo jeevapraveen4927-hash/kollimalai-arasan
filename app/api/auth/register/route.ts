@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { demoUsers } from "@/lib/demo-users";
 
 export async function POST(request: Request) {
   try {
@@ -16,14 +17,37 @@ export async function POST(request: Request) {
       );
     }
 
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const existingUser = demoUsers.find(
+      (user) => user.email === normalizedEmail
+    );
+
+    if (existingUser) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "An account already exists with this email.",
+        },
+        { status: 409 }
+      );
+    }
+
+    demoUsers.push({
+      fullName: fullName.trim(),
+      email: normalizedEmail,
+      phone: phone.trim(),
+      password,
+    });
+
     return NextResponse.json(
       {
         success: true,
         message: "Registration successful.",
         user: {
-          fullName,
-          email,
-          phone,
+          fullName: fullName.trim(),
+          email: normalizedEmail,
+          phone: phone.trim(),
         },
       },
       { status: 201 }

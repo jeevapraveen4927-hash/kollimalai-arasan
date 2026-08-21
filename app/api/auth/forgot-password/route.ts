@@ -1,4 +1,3 @@
-
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -17,10 +16,16 @@ export async function POST(request: Request) {
       );
     }
 
+    // Temporary demo OTP
+    const otp = "123456";
+
+    console.log("OTP for", email, ":", otp);
+
     return NextResponse.json(
       {
         success: true,
-        message: "Password reset link sent successfully.",
+        message: "OTP sent successfully.",
+        otp: otp,
       },
       { status: 200 }
     );

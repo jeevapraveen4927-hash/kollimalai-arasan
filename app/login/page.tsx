@@ -7,6 +7,7 @@ import { FormEvent, useState } from "react";
 import Header from "@/components/Header";
 import FormField from "@/components/FormField";
 import { loginUser } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -15,6 +16,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
 
   const router = useRouter();
+  const { loginSuccess } = useAuth();
   
 
  const handleSubmit = async (e: FormEvent) => {
@@ -48,16 +50,27 @@ export default function LoginPage() {
   }
 
   // Login
-  const result = await loginUser(trimmedEmail, password);
+const result = await loginUser(trimmedEmail, password);
 
-  if (!result.success) {
-    setError(result.message ?? "Invalid email or password. Please try again.");
-    return;
-  }
+if (!result.success) {
+  setError(
+    result.message ?? "Invalid email or password. Please try again."
+  );
+  return;
+}
 
-  // Login successful
-  router.push("/profile");
-};
+// Save logged-in user and session
+if (result.user) {
+  loginSuccess({
+    fullName: result.user.fullName || "Test User",
+    email: result.user.email,
+    phone: result.user.phone || "",
+  });
+}
+
+// Login successful
+router.push("/profile");
+ }
   return (
     <main className="flex min-h-screen flex-col bg-gray-50">
       <Header />

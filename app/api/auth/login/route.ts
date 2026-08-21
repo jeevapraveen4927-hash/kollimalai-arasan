@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { demoUsers } from "@/lib/demo-users";
 
 export async function POST(request: Request) {
   try {
@@ -16,27 +17,33 @@ export async function POST(request: Request) {
       );
     }
 
-    // Temporary API login
-    if (
-      email === "test@example.com" &&
-      password === "123456"
-    ) {
-      return NextResponse.json({
-        success: true,
-        message: "Login successful.",
-        user: {
-          email,
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const user = demoUsers.find(
+      (item) =>
+        item.email === normalizedEmail &&
+        item.password === password
+    );
+
+    if (!user) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Invalid email or password.",
         },
-      });
+        { status: 401 }
+      );
     }
 
-    return NextResponse.json(
-      {
-        success: false,
-        message: "Invalid email or password.",
+    return NextResponse.json({
+      success: true,
+      message: "Login successful.",
+      user: {
+        fullName: user.fullName,
+        email: user.email,
+        phone: user.phone,
       },
-      { status: 401 }
-    );
+    });
   } catch (error) {
     console.error("Login API error:", error);
 
